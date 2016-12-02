@@ -15,6 +15,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class RecyclerViewTest extends AppCompatActivity implements RecyclerViewClicked{
 
@@ -27,16 +28,24 @@ public class RecyclerViewTest extends AppCompatActivity implements RecyclerViewC
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,1);
         recyclerView.setLayoutManager(gridLayoutManager);
+        //new getResponse().execute();
 
-        new getResponse().execute();
+        ArrayList<UserDetails>  userDetails = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            String Name = String.format(Locale.ENGLISH,"Name #%s",i);
+            String City = String.format(Locale.ENGLISH,"City #%s",i);
+            String Country = String.format(Locale.ENGLISH,"Country #%s",i);
+            userDetails.add(new UserDetails(Name,City,Country));
+        }
+        recyclerView.setAdapter(new RecyclerAdapter(RecyclerViewTest.this,userDetails,RecyclerViewTest.this));
     }
 
     @Override
     public void OnClick(UserDetails userDetails) {
-        getSupportActionBar().setTitle(userDetails.getCountry());
+        //getSupportActionBar().setTitle(userDetails.getCountry());
     }
 
-    class getResponse extends AsyncTask<Void,Void,Boolean>{
+    private class getResponse extends AsyncTask<Void,Void,Boolean>{
 
         ProgressDialog progress;
         ArrayList<UserDetails>  userDetails;
@@ -78,7 +87,7 @@ public class RecyclerViewTest extends AppCompatActivity implements RecyclerViewC
             progress.dismiss();
 
             if (aBoolean){
-                recyclerView.setAdapter(new RecyclerAdapter(userDetails,RecyclerViewTest.this));
+                recyclerView.setAdapter(new RecyclerAdapter(RecyclerViewTest.this,userDetails,RecyclerViewTest.this));
             }
             else {
                 Toast.makeText(RecyclerViewTest.this,"something went wrong",Toast.LENGTH_LONG).show();

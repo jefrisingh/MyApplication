@@ -1,9 +1,13 @@
 package com.example.jefri.myapplication;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -12,10 +16,12 @@ import java.util.ArrayList;
  * Created by JEFRI SINGH(ஜெப்ரி சிங்) on 4/2/2016.
  * Organization "The Tuna Group" - Kerala
  */
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
-    ArrayList<UserDetails> arrayList;
-    RecyclerViewClicked callback;
-    public RecyclerAdapter(ArrayList<UserDetails> arrayList,RecyclerViewClicked callback) {
+class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
+    private ArrayList<UserDetails> arrayList;
+    private RecyclerViewClicked callback;
+    private Context context;
+    RecyclerAdapter(Context context,ArrayList<UserDetails> arrayList,RecyclerViewClicked callback) {
+        this.context = context;
         this.arrayList = arrayList;
         this.callback = callback;
     }
@@ -39,19 +45,45 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         return arrayList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView name,city,country;
-        public ViewHolder(View itemView) {
+        ImageButton add,remove;
+        ViewHolder(View itemView) {
             super(itemView);
             name = (TextView)itemView.findViewById(R.id.name_textView);
             city = (TextView)itemView.findViewById(R.id.city_textView);
             country = (TextView)itemView.findViewById(R.id.country_textView);
-            itemView.setOnClickListener(this);
+            add = (ImageButton) itemView.findViewById(R.id.imageButton_add);
+            remove = (ImageButton) itemView.findViewById(R.id.imageButton_remove);
+            add.setOnClickListener(this);
+            remove.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            callback.OnClick(arrayList.get(getAdapterPosition()));
+            if (v.getTag().toString().equals("add")){
+                //add button clicked
+                new AlertDialog.Builder(context)
+                        .setTitle("Add Item")
+                        .setMessage("Do you want add item to list?")
+                        .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //adding item at the end
+                                //you can add XML ui for dialog for getting details here
+                                arrayList.add(new UserDetails("New Name","New city","New County"));
+                                notifyItemInserted(arrayList.size());
+                            }
+                        })
+                        .setNegativeButton("NO",null)
+                        .create().show();
+            }else if (v.getTag().toString().equals("remove")){
+                //delete button clicked
+                arrayList.remove(getAdapterPosition());
+                //getAdapterPosition() used to get the position of the button clicked
+                notifyItemRemoved(getAdapterPosition());
+            }
+            //callback.OnClick(arrayList.get(getAdapterPosition()));
         }
     }
 }
